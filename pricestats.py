@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
+import os, warnings
+
+warnings.filterwarnings("ignore")
 
 # Modified function using st.cache_data
 @st.cache_data
@@ -11,11 +13,20 @@ def load_data():
 
 data = load_data()
 
-st.title('Vehicle Price Analysis Tool')
+st.title('Scrapyard Price Analysis Tool')
 
-brand_selected = st.selectbox('Select Brand', data['brand'].unique())
-models_for_brand = data[data['brand'] == brand_selected]['model'].unique()
-model_selected = st.selectbox('Select Model', models_for_brand)
+# Get URL parameters using the correct method
+url_brand_selected = st.query_params.brand  # Get brand from URL, default to None
+url_model_selected = st.query_params.model    # Get model from URL, default to None
+
+# Allow user to select brand and model if not specified in URL
+if url_brand_selected and url_model_selected:
+    brand_selected = url_brand_selected
+    model_selected = url_model_selected
+else:
+    brand_selected = st.selectbox('Select Brand', data['brand'].unique())
+    models_for_brand = data[data['brand'] == brand_selected]['model'].unique()
+    model_selected = st.selectbox('Select Model', models_for_brand)
 
 data_filtered = data[(data['brand'] == brand_selected) & (data['model'] == model_selected)]
 
